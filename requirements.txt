@@ -1,0 +1,4 @@
+flask
+ibm-watson
+ibm-cloud-sdk-core
+gunicorn
