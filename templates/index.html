@@ -5,12 +5,18 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #d3d3d6;
+            background: #f0f0f1;
             margin: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dark-mode {
+            background: #1e1e1e;
+            color: #f1f1f1;
         }
 
         .container {
@@ -20,6 +26,12 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             text-align: center;
             width: 400px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dark-mode .container {
+            background: #2a2a2a;
+            color: #fff;
         }
 
         h1 {
@@ -27,14 +39,61 @@
             color: #222;
         }
 
+        .dark-mode h1 {
+            color: #ddd;
+        }
+
+        /* Input area wrapper */
+        .input-wrapper {
+            position: relative;
+            border: 1px solid #888;
+            border-radius: 8px;
+            background: #fff;
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        .dark-mode .input-wrapper {
+            background: #333;
+            border-color: #aaa;
+        }
+
         textarea {
             width: 100%;
             height: 120px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #888;
-            font-size: 16px;
+            border: none;
+            outline: none;
             resize: none;
+            font-size: 16px;
+            background: transparent;
+            color: inherit;
+            padding: 10px 40px 30px 10px; /* Add bottom padding for mic space */
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        /* Mic button in bottom-right corner of the textarea */
+        .mic-btn {
+            position: absolute;
+            bottom: 6px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: #333;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+
+        .dark-mode .mic-btn {
+            color: #fff;
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-btn.listening {
+            color: red;
         }
 
         button {
@@ -68,7 +127,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Sentiment-specific background + text */
+        /* Sentiment colors */
         .Positive {
             background-color: #e6f8e6;
             color: green;
@@ -86,15 +145,40 @@
             color: red;
             font-weight: bold;
         }
+
+        /* Toggle button */
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: none;
+            border: 2px solid #555;
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: 0.3s;
+        }
+
+        .dark-mode .toggle-btn {
+            color: #fff;
+            border-color: #aaa;
+        }
     </style>
 </head>
 <body>
+
+    <button class="toggle-btn" onclick="toggleMode()">🌙 Dark</button>
 
     <div class="container">
         <h1>🧠 Sentiment Analysis using IBM Watson</h1>
 
         <form method="post" action="/analyze">
-            <textarea name="text" placeholder="Enter text..." required></textarea><br>
+            <div class="input-wrapper">
+                <textarea id="textInput" name="text" placeholder="Enter text..." required></textarea>
+                <button type="button" class="mic-btn" id="micButton" title="Speak">🎙️</button>
+            </div>
             <button type="submit">Analyze</button>
         </form>
 
@@ -124,7 +208,37 @@
         {% endif %}
     </div>
 
+    <script>
+        // 🌙 Toggle Dark/Light Mode
+        function toggleMode() {
+            document.body.classList.toggle("dark-mode");
+            const btn = document.querySelector(".toggle-btn");
+            btn.textContent = document.body.classList.contains("dark-mode") ? "☀️ Light" : "🌙 Dark";
+        }
 
+        // 🎙️ Speech-to-Text Feature
+        const micButton = document.getElementById("micButton");
+        const textInput = document.getElementById("textInput");
+        let recognition;
+
+        if ("webkitSpeechRecognition" in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = "en-US";
+
+            recognition.onstart = () => micButton.classList.add("listening");
+            recognition.onend = () => micButton.classList.remove("listening");
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                textInput.value += (textInput.value ? " " : "") + speechResult;
+            };
+
+            micButton.addEventListener("click", () => recognition.start());
+        } else {
+            micButton.disabled = true;
+            micButton.title = "Speech recognition not supported in this browser.";
+        }
+    </script>
 <script>
   window.watsonAssistantChatOptions = {
     integrationID: "788e8bfb-3c27-46ca-85cd-8c2b7ab86d84", // The ID of this integration.
@@ -138,6 +252,7 @@
     document.head.appendChild(t);
   });
 </script>
+
 
 </body>
 </html>
