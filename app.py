@@ -8,8 +8,8 @@ app = Flask(__name__)
 # -----------------------------
 # IBM NLU (Sentiment Analysis)
 # -----------------------------
-NLU_API_KEY = "eUcO0M_4jov53yc60E50eGEq4VSiY5VW13xMoZLRpRYu"
-NLU_API_URL = "https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances/81809b0d-2619-4f6f-829d-a4415f14b980"
+NLU_API_KEY = "xxxx"
+NLU_API_URL = "xxxx"
 
 nlu_auth = IAMAuthenticator(NLU_API_KEY)
 nlu = NaturalLanguageUnderstandingV1(
@@ -21,8 +21,8 @@ nlu.set_service_url(NLU_API_URL)
 # -----------------------------
 # IBM STT (Speech-to-Text)
 # -----------------------------
-STT_API_KEY = "BViO0Q1bGzEAFQW3v2W_3FSdzsugcO1V03SeHUQ6xagC"
-STT_API_URL = "https://api.au-syd.speech-to-text.watson.cloud.ibm.com/instances/1b520324-42cc-42ab-9c28-0d4767ef2379"
+STT_API_KEY = "xxxx"
+STT_API_URL = "xxxx"
 
 stt_auth = IAMAuthenticator(STT_API_KEY)
 stt = SpeechToTextV1(authenticator=stt_auth)
