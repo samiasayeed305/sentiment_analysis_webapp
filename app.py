@@ -6,7 +6,7 @@ from ibm_watson.natural_language_understanding_v1 import Features, SentimentOpti
 app = Flask(__name__)
 
 # -----------------------------
-# IBM NLU (Sentiment Analysis)
+# IBM NLU
 # -----------------------------
 NLU_API_KEY = "eUcO0M_4jov53yc60E50eGEq4VSiY5VW13xMoZLRpRYu"
 NLU_API_URL = "https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances/81809b0d-2619-4f6f-829d-a4415f14b980"
@@ -19,7 +19,7 @@ nlu = NaturalLanguageUnderstandingV1(
 nlu.set_service_url(NLU_API_URL)
 
 # -----------------------------
-# IBM STT (Speech-to-Text)
+# IBM Speech-to-Text
 # -----------------------------
 STT_API_KEY = "BViO0Q1bGzEAFQW3v2W_3FSdzsugcO1V03SeHUQ6xagC"
 STT_API_URL = "https://api.au-syd.speech-to-text.watson.cloud.ibm.com/instances/1b520324-42cc-42ab-9c28-0d4767ef2379"
@@ -35,17 +35,18 @@ stt.set_service_url(STT_API_URL)
 def index():
     return render_template('index.html')
 
-# Sentiment analysis route
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     text = request.form.get('text', '').strip()
-    if not text or len(text) < 5:
+    if not text:
         return render_template(
             'index.html',
             text=text,
-            sentiment="⚠️ Please enter a longer sentence.",
+            sentiment="⚠️ Please enter some text.",
             score="–"
         )
+
     try:
         response = nlu.analyze(
             text=text,
@@ -54,12 +55,14 @@ def analyze():
 
         sentiment = response['sentiment']['document']['label'].capitalize()
         score = round(response['sentiment']['document']['score'], 2)
+
         return render_template(
             'index.html',
             text=text,
             sentiment=sentiment,
             score=score
         )
+
     except Exception as e:
         return render_template(
             'index.html',
@@ -67,7 +70,8 @@ def analyze():
             sentiment=f"❌ Error: {str(e)}",
             score="–"
         )
-# Speech-to-Text endpoint
+
+
 @app.route('/speech-to-text', methods=['POST'])
 def speech_to_text():
     if 'audio' not in request.files:
@@ -76,23 +80,20 @@ def speech_to_text():
     audio_file = request.files['audio']
 
     try:
-        content_type = audio_file.content_type or 'audio/webm'
-
         result = stt.recognize(
             audio=audio_file,
-            content_type=content_type,
+            content_type='audio/webm',
             model='en-US_BroadbandModel'
         ).get_result()
 
-        transcript = ""
-        if 'results' in result and len(result['results']) > 0:
-            transcript = result['results'][0]['alternatives'][0]['transcript']
+        transcript = result['results'][0]['alternatives'][0]['transcript']
 
-        # Auto-analyze sentiment
+        # Auto sentiment
         sentiment_result = nlu.analyze(
             text=transcript,
             features=Features(sentiment=SentimentOptions())
         ).get_result()
+
         sentiment = sentiment_result['sentiment']['document']['label'].capitalize()
         score = round(sentiment_result['sentiment']['document']['score'], 2)
 
@@ -105,6 +106,6 @@ def speech_to_text():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# -----------------------------
+
 if __name__ == '__main__':
     app.run(debug=True)
