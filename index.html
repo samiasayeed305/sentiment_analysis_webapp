@@ -3,28 +3,98 @@
 <head>
     <title>Sentiment Analysis App</title>
     <style>
-        body { font-family: Arial;background: url('/static/image.jpg') no-repeat center center/cover; margin:0; height:100vh; display:flex; justify-content:center; align-items:center; transition:0.3s; }
-        .dark-mode { background:#1e1e1e; color:#f1f1f1; }
-        .container { background:rgb(235, 236, 224); padding:40px 50px; border-radius:15px; box-shadow:0 0 15px rgba(0,0,0,0.2); text-align:center; width:400px; transition:0.3s; }
+
+        body {
+            font-family: Arial;
+            background: url('/static/image.jpg') no-repeat center center / cover;
+            margin: 0; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            transition: 0.3s;
+        }
+
+        .dark-mode { background: #1e1e1e; color:#f1f1f1; }
+
+        .toggle-btn {
+            position: fixed;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: 2px solid #555;
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            z-index: 999;
+        }
+        .dark-mode .toggle-btn { color: #fff; border-color: #aaa; }
+
+        .container {
+            background: rgb(235, 236, 224);
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 400px;
+            transition: 0.3s;
+        }
         .dark-mode .container { background:#2a2a2a; color:#fff; }
+
         h1 { margin-bottom:25px; color:#222; }
         .dark-mode h1 { color:#ddd; }
-        .input-wrapper { position: relative; border:1px solid #888; border-radius:8px; background:#fff; transition:0.3s; }
+
+        textarea {
+            width:100%; height:120px;
+            border:none; outline:none; resize:none;
+            font-size:16px; background:transparent; color:inherit;
+            padding:10px 40px 30px 10px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            border:1px solid #888;
+            border-radius:8px;
+            background:#fff;
+            transition:0.3s;
+        }
         .dark-mode .input-wrapper { background:#333; border-color:#aaa; }
-        textarea { width:100%; height:120px; border:none; outline:none; resize:none; font-size:16px; background:transparent; color:inherit; padding:10px 40px 30px 10px; box-sizing:border-box; }
-        .mic-btn { position:absolute; bottom:10px; right:10px; background:#1e0270; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-size:18px; display:flex; justify-content:center; align-items:center; transition:0.3s; }
-        .mic-btn:hover { background:#979799; }
-        button[type="submit"] { padding:12px 30px; margin-top:20px; background-color:rgb(12,3,80); color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px; transition:0.3s; }
-        button[type="submit"]:hover { background-color:rgb(183, 182, 186); }
-        .result { margin-top:25px; padding:15px; border-radius:8px; box-shadow:0 0 8px #282222; text-align:left; opacity:0; animation:fadeIn 1s ease forwards; }
-        @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-        .Positive { background-color:#e8f3d8; color:green; font-weight:bold; }
-        .Neutral { background-color:#fff8dc; color:goldenrod; font-weight:bold; }
-        .Negative { background-color:#ffe5e5; color:red; font-weight:bold; }
-        .toggle-btn { position:absolute; top:20px; right:30px; background:none; border:2px solid #555; border-radius:20px; padding:6px 12px; cursor:pointer; font-size:14px; color:#333; transition:0.3s; }
-        .dark-mode .toggle-btn { color:#fff; border-color:#aaa; }
+
+        .mic-btn {
+            position:absolute; bottom:10px; right:10px;
+            background:#1e0270; color:white; border:none;
+            border-radius:50%; width:35px; height:35px;
+            cursor:pointer; font-size:18px;
+            display:flex; justify-content:center; align-items:center;
+        }
+
+        button {
+            padding:12px 30px; margin-top:10px;
+            background-color:rgb(12,3,80);
+            color:white; border:none;
+            border-radius:6px; cursor:pointer; font-size:16px;
+        }
+        button:hover { background-color:rgb(183,182,186); }
+
+        .result {
+            margin-top:25px;
+            padding:15px;
+            border-radius:8px;
+            box-shadow:0 0 8px #282222;
+            text-align:left;
+            opacity:0; animation:fadeIn 1s ease forwards;
+        }
+
+        .Positive { background:#e8f3d8; color:green; }
+        .Neutral  { background:#fff8dc; color:goldenrod; }
+        .Negative { background:#ffe5e5; color:red; }
+
+        @keyframes fadeIn {
+            from {opacity:0; transform:translateY(10px);}
+            to   {opacity:1; transform:translateY(0);}
+        }
     </style>
 </head>
+
 <body>
 
 <button class="toggle-btn" onclick="toggleMode()">🌙 Dark</button>
@@ -32,20 +102,31 @@
 <div class="container">
     <h1>🧠 Sentiment Analysis using IBM Watson</h1>
 
-    <form method="post" action="/analyze">
+    <form id="mainForm" method="POST">
         <div class="input-wrapper">
             <textarea id="textInput" name="text" placeholder="Enter text..." required></textarea>
             <button type="button" class="mic-btn" id="micButton">🎙️</button>
         </div>
-        <button type="submit">Analyze</button>
+
+        <button type="button" onclick="postTo('/analyze')">Analyze</button>
+        <button type="button" onclick="postTo('/emotion')">Emotion</button>
+        <button type="button" onclick="postTo('/language')">Language</button>
     </form>
 
-    {% if sentiment %}
-    <div class="result {% if sentiment == 'Positive' %}Positive{% elif sentiment == 'Neutral' %}Neutral{% elif sentiment == 'Negative' %}Negative{% endif %}">
+    {% if result %}
+    <div class="result 
+        {% if label == 'Sentiment' %}
+            {% if result == 'Positive' %}Positive{% elif result == 'Neutral' %}Neutral{% elif result == 'Negative' %}Negative{% endif %}
+        {% else %}
+            Neutral
+        {% endif %}
+    ">
         <h3>Result:</h3>
         <p><strong>Text:</strong> {{ text }}</p>
-        <p><strong>Sentiment:</strong> {{ sentiment }}</p>
+        <p><strong>{{ label }}:</strong> {{ result }}</p>
+        {% if score %}
         <p><strong>Score:</strong> {{ score }}</p>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -57,7 +138,14 @@ function toggleMode() {
     btn.textContent = document.body.classList.contains("dark-mode") ? "☀️ Light" : "🌙 Dark";
 }
 
-// Mic & Auto-Sentiment
+function postTo(route) {
+    const form = document.getElementById("mainForm");
+    form.action = route;
+    form.submit();
+}
+</script>
+
+<script>
 let mediaRecorder;
 let audioChunks = [];
 const micButton = document.getElementById('micButton');
@@ -79,15 +167,12 @@ micButton.addEventListener('click', async () => {
                 const formData = new FormData();
                 formData.append('audio', audioBlob, 'recording');
 
-                try {
-                    const response = await fetch('/speech-to-text', { method:'POST', body:formData });
-                    const data = await response.json();
-                    if(data.transcript) {
-                        document.getElementById('textInput').value = data.transcript;
-                        alert(`Transcript: ${data.transcript}\nSentiment: ${data.sentiment} (${data.score})`);
-                    }
-                } catch(err) {
-                    alert("Error with speech-to-text: " + err);
+                const response = await fetch('/speech-to-text', { method:'POST', body:formData });
+                const data = await response.json();
+
+                if (data.transcript) {
+                    document.getElementById('textInput').value = data.transcript;
+                    alert(`Transcript: ${data.transcript}\nSentiment: ${data.sentiment} (${data.score})`);
                 }
             };
         }
@@ -96,11 +181,12 @@ micButton.addEventListener('click', async () => {
     }
 });
 </script>
+
 <script>
   window.watsonAssistantChatOptions = {
-    integrationID: "788e8bfb-3c27-46ca-85cd-8c2b7ab86d84", // The ID of this integration.
-    region: "au-syd", // The region your integration is hosted in.
-    serviceInstanceID: "50eadfe1-94c4-4df9-8423-eb737ee43456", // The ID of your service instance.
+    integrationID: "788e8bfb-3c27-46ca-85cd-8c2b7ab86d84",
+    region: "au-syd",
+    serviceInstanceID: "50eadfe1-94c4-4df9-8423-eb737ee43456",
     onLoad: async (instance) => { await instance.render(); }
   };
   setTimeout(function(){
