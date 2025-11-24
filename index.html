@@ -3,19 +3,19 @@
 <head>
     <title>Sentiment Analysis App</title>
     <style>
-        body { font-family: Arial;background: url('image.jpg') no-repeat center center/cover; margin:0; height:100vh; display:flex; justify-content:center; align-items:center; transition:0.3s; }
+        body { font-family: Arial;background: url('/static/image.jpg') no-repeat center center/cover; margin:0; height:100vh; display:flex; justify-content:center; align-items:center; transition:0.3s; }
         .dark-mode { background:#1e1e1e; color:#f1f1f1; }
-        .container { background:rgb(235, 236, 224); padding:40px 50px; border-radius:15px;box-shadow:0 0 15px rgba(0,0,0,0.2); text-align:center; width:300px; transition:0.3s; }
-        .dark-mode .container { background:#0a0236; color:#fff; }
+        .container { background:rgb(235, 236, 224); padding:40px 50px; border-radius:15px; box-shadow:0 0 15px rgba(0,0,0,0.2); text-align:center; width:400px; transition:0.3s; }
+        .dark-mode .container { background:#2a2a2a; color:#fff; }
         h1 { margin-bottom:25px; color:#222; }
         .dark-mode h1 { color:#ddd; }
         .input-wrapper { position: relative; border:1px solid #888; border-radius:8px; background:#fff; transition:0.3s; }
         .dark-mode .input-wrapper { background:#333; border-color:#aaa; }
         textarea { width:100%; height:120px; border:none; outline:none; resize:none; font-size:16px; background:transparent; color:inherit; padding:10px 40px 30px 10px; box-sizing:border-box; }
-        .mic-btn { position:absolute; bottom:10px; right:10px; background:#1d0267; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-size:18px; display:flex; justify-content:center; align-items:center; transition:0.3s; }
-        .mic-btn:hover { background:#c5c4c8; }
+        .mic-btn { position:absolute; bottom:10px; right:10px; background:#1e0270; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-size:18px; display:flex; justify-content:center; align-items:center; transition:0.3s; }
+        .mic-btn:hover { background:#979799; }
         button[type="submit"] { padding:12px 30px; margin-top:20px; background-color:rgb(12,3,80); color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px; transition:0.3s; }
-        button[type="submit"]:hover { background-color:rgb(190, 189, 193); }
+        button[type="submit"]:hover { background-color:rgb(183, 182, 186); }
         .result { margin-top:25px; padding:15px; border-radius:8px; box-shadow:0 0 8px #282222; text-align:left; opacity:0; animation:fadeIn 1s ease forwards; }
         @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
         .Positive { background-color:#e8f3d8; color:green; font-weight:bold; }
